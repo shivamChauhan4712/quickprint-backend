@@ -25,17 +25,25 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
-				.headers(headers -> headers.frameOptions(frame -> frame.disable()))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/cafes/login", "/api/cafes/register", "/api/file/upload/**",
-								"/ws-print/**")
-						.permitAll().requestMatchers(HttpMethod.PATCH, "/api/file/**").permitAll().anyRequest()
-						.authenticated())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+	    http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
+	            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+	            .authorizeHttpRequests(auth -> auth
+	                    .requestMatchers(
+	                        "/api/cafes/login", 
+	                        "/api/cafes/register", 
+	                        "/api/file/upload/**",
+	                        "/api/file/download/**", // 1. Download allow karo (GET)
+	                        "/api/file/delete/**",   // 2. Single Delete allow karo (DELETE)
+	                        "/api/file/delete-bulk", // 3. Bulk Delete allow karo (DELETE)
+	                        "/api/file/list/**",     // 4. File list allow karo
+	                        "/ws-print/**"
+	                    ).permitAll()
+	                    .requestMatchers(HttpMethod.PATCH, "/api/file/**").permitAll() 
+	                    .anyRequest().authenticated())
+	            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
+	    return http.build();
 	}
 
 	@Bean
