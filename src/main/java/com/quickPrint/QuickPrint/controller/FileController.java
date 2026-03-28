@@ -91,5 +91,10 @@ public class FileController {
 		fileService.deleteFileManually(id);
 		return ResponseEntity.ok("File has been physically deleted and status updated to DELETED.");
 	}
+	@DeleteMapping("/delete-bulk")
+	public ResponseEntity<?> deleteBulk(@RequestParam List<UUID> ids) {
+	    fileService.deleteFilesBulk(ids);
+	    return ResponseEntity.ok("Selected files deleted successfully");
+	}
 
 }

@@ -29,6 +29,8 @@ import com.quickPrint.QuickPrint.repository.CafeRepository;
 import com.quickPrint.QuickPrint.repository.FileRepository;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
@@ -209,5 +211,28 @@ public class FileService {
 	        // if any error in making URL 
 	        throw new MyFileNotFoundException("Could not determine file path for: " + fileName);
 	    }
+	}
+
+	@Transactional 
+	public void deleteFilesBulk(List<UUID> ids) {
+	    // 1. fetching data if all file
+	    List<UploadedFile> files = fileRepo.findAllById(ids);
+
+	    for (UploadedFile file : files) {
+	        try {
+	            // 2. Physical file delete 
+	            Path filePath = this.root.resolve(file.getStoredFileName());
+	            Files.deleteIfExists(filePath);
+
+	            // 3. Status update 
+	            file.setStatus(FileStatus.DELETED);
+	        } catch (IOException e) {
+	            System.err.println("Could not delete file: " + file.getOriginalFileName());
+	        }
+	    }
+
+	    // 4. saving all files (Efficiency!)
+	    fileRepo.saveAll(files);
+	    System.out.println("Bulk Delete Success: " + ids.size() + " files processed.");
 	}
 }
