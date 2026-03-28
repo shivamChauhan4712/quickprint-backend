@@ -15,42 +15,42 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    private JwtFilter jwtFilter;
+	@Autowired
+	private JwtFilter jwtFilter;
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
+				.headers(headers -> headers.frameOptions(frame -> frame.disable()))
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/api/cafes/login", "/api/cafes/register", "/api/file/upload/**",
+								"/ws-print/**")
+						.permitAll().requestMatchers(HttpMethod.PATCH, "/api/file/**").permitAll().anyRequest()
+						.authenticated())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/cafes/login", "/api/cafes/register", "/api/file/upload/**", "/ws-print/**").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/api/file/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+		return http.build();
+	}
 
-        return http.build();
-    }
-    
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
 
-        configuration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173", "https://quickprint-frontend.vercel.app"));
-        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "PATCH","DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
-        
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+		configuration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173",
+				"https://quickprint-frontend.vercel.app", "https://staci-nitrifiable-ila.ngrok-free.dev"));
+		configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(
+				java.util.Arrays.asList("Authorization", "Content-Type", "ngrok-skip-browser-warning"));
+		configuration.setAllowCredentials(true);
+
+		org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 }

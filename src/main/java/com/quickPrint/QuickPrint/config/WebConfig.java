@@ -11,10 +11,12 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                     "http://localhost:5173", 
-                    "http://192.168.1.139:5173" // <--- Aapka Laptop IP
+                    "https://quickprint-frontend.vercel.app", 
+                    "https://staci-nitrifiable-ila.ngrok-free.dev"
                 )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
+                .exposedHeaders("Authorization")
                 .allowCredentials(true);
     }
 }

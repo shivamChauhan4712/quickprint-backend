@@ -16,38 +16,77 @@ import java.util.ArrayList;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtils jwtUtils;
+	@Autowired
+	private JwtUtils jwtUtils;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
-        // 1. fetching Authorization header 
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String email = null;
+		String path = request.getServletPath();
 
-        // 2. Check if it starts with "Bearer "
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            email = jwtUtils.getEmailFromToken(token);
-        }
+		
+		if (path.startsWith("/api/cafes/login") || path.startsWith("/api/cafes/register")) {
+			filterChain.doFilter(request, response);
+			return;
+		}
 
-        // 3. if email is found and security context is empty
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            
-            // here validation for token
-            if (jwtUtils.validateToken(token, email)) {
-                UsernamePasswordAuthenticationToken authToken = 
-                    new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
-                
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                // updating in Security Context that user is now "Logged In"
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
-        }
-        filterChain.doFilter(request, response);
-    }
+		String authHeader = request.getHeader("Authorization");
+		String token = null;
+		String email = null;
+
+		try {
+			if (authHeader != null && authHeader.startsWith("Bearer ")) {
+				token = authHeader.substring(7);
+				email = jwtUtils.getEmailFromToken(token);
+			}
+
+			if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				if (jwtUtils.validateToken(token, email)) {
+					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null,
+							new ArrayList<>());
+
+					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					SecurityContextHolder.getContext().setAuthentication(authToken);
+				}
+			}
+		} catch (Exception e) {
+
+			System.out.println("JWT Validation failed: " + e.getMessage());
+		}
+
+		filterChain.doFilter(request, response);
+	}
+
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+//            throws ServletException, IOException {
+//
+//        // 1. fetching Authorization header 
+//        String authHeader = request.getHeader("Authorization");
+//        String token = null;
+//        String email = null;
+//
+//        // 2. Check if it starts with "Bearer "
+//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+//            token = authHeader.substring(7);
+//            email = jwtUtils.getEmailFromToken(token);
+//        }
+//
+//        // 3. if email is found and security context is empty
+//        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+//            
+//            // here validation for token
+//            if (jwtUtils.validateToken(token, email)) {
+//                UsernamePasswordAuthenticationToken authToken = 
+//                    new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
+//                
+//                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                
+//                // updating in Security Context that user is now "Logged In"
+//                SecurityContextHolder.getContext().setAuthentication(authToken);
+//            }
+//        }
+//        filterChain.doFilter(request, response);
+//    }
 }

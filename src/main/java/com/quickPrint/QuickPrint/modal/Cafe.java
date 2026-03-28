@@ -39,6 +39,7 @@ public class Cafe {
 	
 	@Email(message = "Please provide a valid email address")
 	@NotBlank(message = "Email is required")
+	@Column(unique = true)
 	private String ownerEmail;
 	
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

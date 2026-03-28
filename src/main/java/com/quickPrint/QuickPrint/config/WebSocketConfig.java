@@ -17,6 +17,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 	
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws-print").setAllowedOriginPatterns("http://localhost:5173", "http://192.168.1.139:5173").withSockJS();
+		registry.addEndpoint("/ws-print").setAllowedOriginPatterns("*").withSockJS();
 	}
 }
+///.setAllowedOrigins("http://localhost:5173",
+//		"https://quickprint-frontend.vercel.app", 
+//        "https://staci-nitrifiable-ila.ngrok-free.dev")

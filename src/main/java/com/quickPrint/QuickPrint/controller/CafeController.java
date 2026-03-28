@@ -43,13 +43,13 @@ public class CafeController {
 	    String email = credentials.get("email");
 	    String password = credentials.get("password");
 
-	    // 1. Password check (CafeService se)
+	    // 1. Password check (CafeService)
 	    Cafe cafe = cafeService.loginCafe(email, password);
 
-	    // 2. Token generate karein
+	    // 2. Token generate 
 	    String token = jwtUtils.generateToken(email);
 
-	    // 3. Response mein token aur cafe ki details bhejien
+	    // 3. sending token and cafe details in Response 
 	    Map<String, Object> response = new HashMap<>();
 	    response.put("token", token);
 	    response.put("uniqueCode", cafe.getUniqueCode());
