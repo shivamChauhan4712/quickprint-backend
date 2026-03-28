@@ -32,10 +32,10 @@ public class SecurityConfig {
 	                        "/api/cafes/login", 
 	                        "/api/cafes/register", 
 	                        "/api/file/upload/**",
-	                        "/api/file/download/**", // 1. Download allow karo (GET)
-	                        "/api/file/delete/**",   // 2. Single Delete allow karo (DELETE)
-	                        "/api/file/delete-bulk", // 3. Bulk Delete allow karo (DELETE)
-	                        "/api/file/list/**",     // 4. File list allow karo
+	                        "/api/file/download/**", // 1. Download allow (GET)
+	                        "/api/file/delete/**",   // 2. Single Delete allow(DELETE)
+	                        "/api/file/delete-bulk", // 3. Bulk Delete allow(DELETE)
+	                        "/api/file/list/**",     // 4. File list allow
 	                        "/ws-print/**"
 	                    ).permitAll()
 	                    .requestMatchers(HttpMethod.PATCH, "/api/file/**").permitAll() 
